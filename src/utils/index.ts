@@ -4,6 +4,6 @@ export * from "./retry";
 export * from "./validation/index";
 export * from "./performance";
 export * from "./service-worker";
-export * from "./seo";
+export * from "./seo/index";
 export * from "./formatting";
 export * from "./security";
