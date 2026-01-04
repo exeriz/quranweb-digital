@@ -1,5 +1,5 @@
 import { Component, type ReactNode } from "react";
-import { logger, handleErrorBoundary } from "@/utils/logger";
+import { logger, handleErrorBoundary } from "@/utils";
 import { ErrorState } from "@/components/feedback";
 
 interface Props {

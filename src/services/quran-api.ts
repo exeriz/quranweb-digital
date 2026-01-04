@@ -3,7 +3,7 @@ import type { AxiosInstance } from "axios";
 import type { Surah, SurahDetail, Tafsir } from "@/types";
 import { cacheManager } from "@/utils/cache";
 import { retryAsync } from "@/utils/retry";
-import { logger, APIError } from "@/utils/logger";
+import { logger, APIError } from "@/utils";
 
 const API_BASE_URL = "https://equran.id/api/v2";
 

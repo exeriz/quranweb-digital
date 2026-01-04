@@ -4,7 +4,7 @@ import { Search } from "@/components/features/search";
 import { SurahCard } from "@/components/features/surah";
 import { LoadingState, EmptyState, ErrorState } from "@/components/feedback";
 import { quranAPI } from "@/services";
-import { logger } from "@/utils/logger";
+import { logger } from "@/utils";
 
 function HomeComponent() {
   const [surahs, setSurahs] = useState<Surah[]>([]);
