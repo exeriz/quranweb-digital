@@ -6,3 +6,4 @@ export * from "./performance";
 export * from "./service-worker";
 export * from "./seo";
 export * from "./formatting";
+export * from "./security";
