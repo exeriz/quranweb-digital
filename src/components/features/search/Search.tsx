@@ -30,7 +30,12 @@ interface SearchState {
   status: SearchStatus;
 }
 
-function useSurahSearch({ close }: { close: () => void }) {
+interface UseSearchOptions {
+  close: () => void;
+  onSearch?: (query: string) => void; // Callback untuk parent component
+}
+
+function useSurahSearch({ close, onSearch }: UseSearchOptions) {
   const navigate = useNavigate();
   const [searchState, setSearchState] = useState<SearchState>({
     query: "",
@@ -73,6 +78,7 @@ function useSurahSearch({ close }: { close: () => void }) {
           results: [],
           status: SEARCH_STATUS.Idle,
         }));
+        onSearch?.("");
         return;
       }
 
@@ -93,8 +99,10 @@ function useSurahSearch({ close }: { close: () => void }) {
         status: SEARCH_STATUS.Success,
         isOpen: true,
       }));
+
+      onSearch?.(query);
     },
-    [fetchAllSurahs]
+    [fetchAllSurahs, onSearch]
   );
 
   const handleInputChange = useCallback(
@@ -309,21 +317,26 @@ const SearchInput = forwardRef<
   );
 });
 
+interface SearchDialogProps {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  className?: string;
+  onSearch?: (query: string) => void;
+}
+
 function SearchDialog({
   open,
   setOpen,
   className,
-}: Readonly<{
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  className?: string;
-}>) {
+  onSearch,
+}: Readonly<SearchDialogProps>) {
   const inputRef = useRef<HTMLInputElement>(null);
   const { searchState, handleInputChange, navigateToSurah, setSearchState } =
     useSurahSearch({
       close() {
         setOpen(false);
       },
+      onSearch,
     });
 
   const pathname = useLocation();
@@ -391,7 +404,11 @@ function SearchDialog({
   );
 }
 
-export const Search = () => {
+interface SearchProps {
+  onSearch?: (query: string) => void;
+}
+
+const SearchComponent = ({ onSearch }: SearchProps) => {
   const [modifierKey] = useState(() =>
     /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent) ? "⌘" : "Ctrl"
   );
@@ -437,10 +454,12 @@ export const Search = () => {
         )}
       </Button>
       <Suspense fallback={null}>
-        <SearchDialog open={open} setOpen={setOpen} />
+        <SearchDialog open={open} setOpen={setOpen} onSearch={onSearch} />
       </Suspense>
     </>
   );
 };
 
-Search.displayName = "Search";
+SearchComponent.displayName = "Search";
+
+export const Search = memo(SearchComponent);

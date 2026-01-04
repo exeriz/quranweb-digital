@@ -11,4 +11,31 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ["react", "react-dom", "react-router"],
+          api: ["axios"],
+          ui: ["@headlessui/react", "@heroicons/react", "lucide-react"],
+        },
+      },
+    },
+    minify: "terser",
+    target: "esnext",
+    sourcemap: false,
+    reportCompressedSize: true,
+    chunkSizeWarningLimit: 500,
+  },
+  server: {
+    middlewareMode: false,
+    hmr: {
+      protocol: "ws",
+      host: "localhost",
+      port: 5173,
+    },
+  },
+  preview: {
+    port: 4173,
+  },
 });

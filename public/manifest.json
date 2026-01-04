@@ -4,7 +4,7 @@
   "description": "Aplikasi Al-Qur'an digital interaktif dengan 114 surah, terjemahan Indonesia, tafsir lengkap, dan audio dari berbagai reciter profesional.",
   "start_url": "/",
   "scope": "/",
-  "display": "standalone",
+  "display": "browser",
   "orientation": "portrait-primary",
   "theme_color": "#059669",
   "background_color": "#ffffff",

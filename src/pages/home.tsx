@@ -1,41 +1,93 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback, memo } from "react";
 import type { Surah } from "@/types";
 import { Search } from "@/components/features/search";
 import { SurahCard } from "@/components/features/surah";
-import { LoadingState, EmptyState } from "@/components/feedback";
+import { LoadingState, EmptyState, ErrorState } from "@/components/feedback";
 import { quranAPI } from "@/services";
+import { logger } from "@/utils/logger";
 
-export default function Home() {
+function HomeComponent() {
   const [surahs, setSurahs] = useState<Surah[]>([]);
+  const [filteredSurahs, setFilteredSurahs] = useState<Surah[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
+    let isMounted: boolean = true;
+
     const fetchSurahs = async () => {
       try {
         setLoading(true);
         setError(null);
         const data = await quranAPI.getAllSurahs();
-        setSurahs(data);
+
+        if (isMounted) {
+          setSurahs(data);
+          setFilteredSurahs(data);
+          logger.info("Successfully loaded surahs", { count: data.length });
+        }
       } catch (err) {
-        console.error("Error fetching surahs:", err);
-        setError("Failed to load surahs");
+        if (isMounted) {
+          logger.error("Failed to fetch surahs", err);
+          setError("Gagal memuat data. Silakan coba lagi nanti.");
+          setFilteredSurahs([]);
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchSurahs();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
+
+  const handleSearch = useCallback(
+    (query: string) => {
+      setSearchQuery(query);
+
+      if (!query.trim()) {
+        setFilteredSurahs(surahs);
+        return;
+      }
+
+      const lowerQuery = query.toLowerCase().trim();
+      const filtered = surahs.filter(
+        (surah) =>
+          surah.namaLatin.toLowerCase().includes(lowerQuery) ||
+          surah.arti.toLowerCase().includes(lowerQuery) ||
+          String(surah.nomor).includes(lowerQuery)
+      );
+
+      setFilteredSurahs(filtered);
+    },
+    [surahs]
+  );
+
+  const surahGrid = useMemo(
+    () => (
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+        {filteredSurahs.map((surah) => (
+          <SurahCard key={surah.nomor} surah={surah} />
+        ))}
+      </div>
+    ),
+    [filteredSurahs]
+  );
 
   if (loading) return <LoadingState />;
 
   if (error) {
-    return <EmptyState title="Failed to load" description={error} />;
+    return <ErrorState error={error} />;
   }
 
   if (surahs.length === 0) {
-    return <EmptyState title="No surahs found" />;
+    return <EmptyState title="Data tidak ditemukan" />;
   }
 
   return (
@@ -51,7 +103,7 @@ export default function Home() {
         <h2 className="my-8 text-5xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
           Jelajahi{" "}
           <span className="text-emerald-600 dark:text-emerald-400">
-            114 Surah
+            {surahs.length} Surah
           </span>{" "}
           Al-Quran
         </h2>
@@ -60,18 +112,25 @@ export default function Home() {
           terjemahan, tafsir, dan audio berkualitas tinggi
         </p>
 
-        <Search />
+        <Search onSearch={handleSearch} />
       </header>
 
       <div className="mb-12 h-px w-full bg-linear-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent" />
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-        {surahs.map((surah) => (
-          <SurahCard key={surah.nomor} surah={surah} />
-        ))}
-      </div>
+      {filteredSurahs.length === 0 && searchQuery ? (
+        <EmptyState
+          title="Tidak ada hasil"
+          description={`Cari surah dengan nama atau nomor`}
+        />
+      ) : (
+        surahGrid
+      )}
 
       <div className="my-16 h-px w-full bg-linear-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent" />
     </>
   );
 }
+
+HomeComponent.displayName = "Home";
+
+export default memo(HomeComponent);

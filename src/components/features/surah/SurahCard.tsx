@@ -1,3 +1,4 @@
+import { memo } from "react";
 import type { Surah } from "@/types";
 import { formatArabicNumber } from "@/utils/formatting";
 import { Button } from "@/components/ui/Button";
@@ -7,7 +8,7 @@ interface SurahCardProps {
   surah: Surah;
 }
 
-export const SurahCard = ({ surah }: Readonly<SurahCardProps>) => {
+const SurahCardComponent = ({ surah }: Readonly<SurahCardProps>) => {
   const { nomor, tempatTurun, nama, namaLatin, arti, jumlahAyat } = surah;
 
   const isMakkah = tempatTurun === "Mekah";
@@ -16,7 +17,7 @@ export const SurahCard = ({ surah }: Readonly<SurahCardProps>) => {
     : "bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 ring-green-600/20 dark:ring-green-500/20";
 
   return (
-    <div className="group relative p-6 rounded-2xl shadow-sm hover:-translate-y-1 border border-gray-200/60 hover:border-emerald-500 dark:border-gray-800/60 bg-gray-50/70 dark:bg-gray-950/70">
+    <div className="group relative p-6 rounded-2xl shadow-sm hover:-translate-y-1 border border-gray-200/60 hover:border-emerald-500 dark:border-gray-800/60 bg-gray-50/70 dark:bg-gray-950/70 transition-all duration-300">
       <div className="flex items-center justify-between mb-4">
         <div className="font-serif size-10 bg-linear-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center text-gray-100 text-lg shadow-lg">
           {formatArabicNumber(nomor)}
@@ -65,5 +66,7 @@ export const SurahCard = ({ surah }: Readonly<SurahCardProps>) => {
     </div>
   );
 };
+
+export const SurahCard = memo(SurahCardComponent);
 
 SurahCard.displayName = "SurahCard";
