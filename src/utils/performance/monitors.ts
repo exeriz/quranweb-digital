@@ -1,4 +1,4 @@
-import { logger } from "@/utils/logger";
+import { logger } from "@/utils/logger/logger";
 import { APP_CONFIG } from "@/config/app";
 import { MetricsRecorder } from "./metrics-recorder";
 
@@ -6,7 +6,7 @@ export class PerformanceMonitors {
   private recorder = new MetricsRecorder();
   private observers: PerformanceObserver[] = [];
 
-  constructor (recorder: MetricsRecorder) {
+  constructor(recorder: MetricsRecorder) {
     this.recorder = recorder;
   }
 
